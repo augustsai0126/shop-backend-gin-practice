@@ -15,6 +15,7 @@ type UserService interface {
 	Register(username, email, password string) error
 	Login(username, password string) (string, error)
 	GetUserByID(userID uint) (*domain.User, error)
+	IsAdmin(userID uint) (bool, error)
 }
 
 type userService struct {
@@ -71,4 +72,12 @@ func (s *userService) Login(username, password string) (string, error) {
 
 func (s *userService) GetUserByID(userID uint) (*domain.User, error) {
 	return s.userRepo.GetByID(userID)
+}
+
+func (s *userService) IsAdmin(userID uint) (bool, error) {
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return false, err
+	}
+	return user.IsAdmin, nil
 }
