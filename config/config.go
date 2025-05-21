@@ -39,3 +39,8 @@ func GetPostgresDSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		db.Host, db.Port, db.Username, db.Password, db.DBName)
 }
+
+func GetJWTSecret() string {
+	LoadEnv()
+	return os.Getenv("JWT_SECRET")
+}

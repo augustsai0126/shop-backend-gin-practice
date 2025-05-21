@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	Create(user *domain.User) error
 	GetByUsername(username string) (*domain.User, error)
+	GetByID(userID uint) (*domain.User, error)
 }
 
 type userRepository struct {
@@ -26,6 +27,15 @@ func (r *userRepository) Create(user *domain.User) error {
 func (r *userRepository) GetByUsername(username string) (*domain.User, error) {
 	var user domain.User
 	result := r.db.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetByID(userID uint) (*domain.User, error) {
+	var user domain.User
+	result := r.db.First(&user, userID)
 	if result.Error != nil {
 		return nil, result.Error
 	}

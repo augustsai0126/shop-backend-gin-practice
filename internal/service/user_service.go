@@ -2,14 +2,19 @@ package service
 
 import (
 	"errors"
+	"shop-backend-gin-practice/config"
 	"shop-backend-gin-practice/internal/domain"
 	"shop-backend-gin-practice/internal/repository"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
 	Register(username, email, password string) error
+	Login(username, password string) (string, error)
+	GetUserByID(userID uint) (*domain.User, error)
 }
 
 type userService struct {
@@ -38,4 +43,32 @@ func (s *userService) Register(username, email, password string) error {
 		PasswordHash: string(hash),
 	}
 	return s.userRepo.Create(user)
+}
+
+func (s *userService) Login(username, password string) (string, error) {
+	user, err := s.userRepo.GetByUsername(username)
+	if err != nil || user == nil {
+		return "", errors.New("invalid username or password")
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
+		return "", errors.New("invalid username or password")
+	}
+
+	// 生成 JWT Token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id":   user.ID,
+		"user_name": user.Username,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(),
+	})
+	jwtSecret := []byte(config.GetJWTSecret())
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func (s *userService) GetUserByID(userID uint) (*domain.User, error) {
+	return s.userRepo.GetByID(userID)
 }

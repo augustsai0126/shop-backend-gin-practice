@@ -26,6 +26,15 @@ func (m *MockUserRepository) GetByUsername(username string) (*domain.User, error
 	return user, nil
 }
 
+func (m *MockUserRepository) GetByID(userID uint) (*domain.User, error) {
+	for _, user := range m.users {
+		if user.ID == userID {
+			return user, nil
+		}
+	}
+	return nil, errors.New("user not found")
+}
+
 // 實際測試
 func TestUserService_Register_Success(t *testing.T) {
 	mockRepo := &MockUserRepository{

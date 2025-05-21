@@ -4,6 +4,7 @@ import (
 	"os"
 	"shop-backend-gin-practice/config"
 	"shop-backend-gin-practice/internal/handler"
+	"shop-backend-gin-practice/internal/middleware"
 	"shop-backend-gin-practice/internal/repository"
 	"shop-backend-gin-practice/internal/service"
 
@@ -28,6 +29,10 @@ func main() {
 	api := r.Group("/api")
 	// Register
 	api.POST("/register", userHandler.Register)
+	// Login
+	api.POST("/login", userHandler.Login)
+	// GetMe
+	api.GET("/me", middleware.JWTAuth(), userHandler.Me)
 
 	port := os.Getenv("PORT")
 	if port == "" {
