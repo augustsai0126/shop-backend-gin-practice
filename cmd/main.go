@@ -24,6 +24,10 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
+
+	categoryRepo := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
 	// GIN
 	r := gin.Default()
 	api := r.Group("/api")
@@ -33,6 +37,9 @@ func main() {
 	api.POST("/login", userHandler.Login)
 	// GetMe
 	api.GET("/me", middleware.JWTAuth(), userHandler.Me)
+
+	// New Category
+	api.POST("/category/new", categoryHandler.New)
 
 	port := os.Getenv("PORT")
 	if port == "" {
