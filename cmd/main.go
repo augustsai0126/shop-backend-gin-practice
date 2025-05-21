@@ -38,8 +38,11 @@ func main() {
 	// GetMe
 	api.GET("/me", middleware.JWTAuth(), userHandler.Me)
 
+	// Admin API
+	adminGroup := api.Group("/admin")
+	adminGroup.Use(middleware.JWTAuth(), middleware.AdminAuth(userService))
 	// New Category
-	api.POST("/category/new", categoryHandler.New)
+	adminGroup.POST("/category/new", categoryHandler.New)
 
 	port := os.Getenv("PORT")
 	if port == "" {
