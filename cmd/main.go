@@ -28,6 +28,10 @@ func main() {
 	categoryRepo := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
+
+	productRepo := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productService)
 	// GIN
 	r := gin.Default()
 	api := r.Group("/api")
@@ -43,6 +47,15 @@ func main() {
 	adminGroup.Use(middleware.JWTAuth(), middleware.AdminAuth(userService))
 	// New Category
 	adminGroup.POST("/category/new", categoryHandler.New)
+	// New Product
+	adminGroup.POST("/product/new", productHandler.CreateProduct)
+	// Update Product
+	adminGroup.PUT("/product/:id", productHandler.UpdateProduct)
+
+	// Product API
+	productGroup := api.Group("/product")
+	productGroup.GET("/list", productHandler.ListProducts)
+	productGroup.GET("/:id", productHandler.GetProduct)
 
 	port := os.Getenv("PORT")
 	if port == "" {
