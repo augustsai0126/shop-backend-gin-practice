@@ -52,6 +52,6 @@ func (r *productRepository) List(page, pageSize int) ([]*domain.Product, int64, 
 	var total int64
 	r.db.Model(&domain.Product{}).Count(&total)
 	offset := (page - 1) * pageSize
-	result := r.db.Offset(offset).Limit(pageSize).Find(&products)
+	result := r.db.Order("id asc").Offset(offset).Limit(pageSize).Find(&products)
 	return products, total, result.Error
 }
