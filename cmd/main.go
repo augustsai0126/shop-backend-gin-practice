@@ -32,6 +32,10 @@ func main() {
 	productRepo := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepo)
 	productHandler := handler.NewProductHandler(productService)
+
+	cartRepo := repository.NewCartRepository(db)
+	cartService := service.NewCartService(cartRepo)
+	cartHandler := handler.NewCartHandler(cartService)
 	// GIN
 	r := gin.Default()
 	api := r.Group("/api")
@@ -56,6 +60,14 @@ func main() {
 	productGroup := api.Group("/product")
 	productGroup.GET("/list", productHandler.ListProducts)
 	productGroup.GET("/:id", productHandler.GetProduct)
+
+	// Cart API
+	cartGroup := api.Group("/cart")
+	cartGroup.Use(middleware.JWTAuth())
+	cartGroup.POST("/add", cartHandler.AddToCart)
+	cartGroup.GET("/list", cartHandler.GetCart)
+	cartGroup.POST("/remove", cartHandler.RemoveFromCart)
+	cartGroup.DELETE("/empty", cartHandler.EmptyCart)
 
 	port := os.Getenv("PORT")
 	if port == "" {
